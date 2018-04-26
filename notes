@@ -1,0 +1,92 @@
+notes
+container component
+  container components are in almost every case the "parents" of presentational components.
+  Container components are primarily concerned with how things work;
+  they rarely have any HTML markup of their own, aside from a wrapping <div>;
+  they are often stateful; and,
+  they are responsible for providing data and behavior to their children (usually presentational components).
+
+//EXAMPLE Container Components
+class BookList extends Component {
+  constructor(props) {
+    super(props);
+    this.state = {      books: []    };  }
+  componentDidMount() {
+    fetch('/api/current_user/book_list')
+      .then(response => response.json())
+      .then((books => this.setState({ books }));  }
+  render() {
+    return (
+      <div className="book-list">
+        {this.state.books.map(book => {
+          <div className="book">
+            <img src={book.img_url} />
+            <h3>{book.title}</h3>
+          </div>
+        })}
+      </div>  }}
+//EXAMPLE Container Components composed  of multiple React components.
+//rendering logic , placed it in a discrete function Book.
+const Book = ({ title, img_url }) => {
+  return (
+    <div className="book">
+      <img src={img_url} />
+      <h3>{title}</h3>
+    </div>  )}
+//presentation layer, which is now contained in the BookList component
+//Because the BookList takes a prop books, we can add propTypes
+const BookList = ({ books }) => (
+  <div className="book-list">
+    {books.map(book => <Book title="book.title" img_url="book.image_url" />)}
+  </div>);
+  //check where to add propTypes
+  BookList.propTypes = {
+    books: PropTypes.shape({
+      img_url: PropTypes.string.isRequired,
+      title: PropTypes.string.isRequired
+    });
+  }
+//All the state is contained in our container component BookListContainer
+class BookListContainer extends React.Component {
+  constructor() {
+    super();
+    this.state = {      books: []    };  }
+  componentDidMount() {
+    fetch('/api/current_user/book_list')
+      .then(response => response.json())
+      .then((books => this.setState({ books }));  }
+  render() {    return <BookList books={this.state.books} />  }}
+
+/////////////////////////////////////////
+presentational component
+      component: render some piece of the beautiful user interfaces
+      concerned with how things look;
+      they probably only contain a render method;
+      they do not know how to load or alter the data that they render;
+      and, they are best written as stateless functional components.
+///simple presentational component
+  class HelloWorld extends Component { //Here is a component that does nothing but render a piece of our UI;
+    render() {
+      return <div class="hello-world">Hello {this.props.message || 'World' }</div>;
+    }
+  }
+///presentational component : TextField
+const defaultLimit = 100
+class TextField extends Component {
+  render() {
+    return (
+      <input
+        className="field field-light"
+        onChange={this.props.onChange}
+        maxLength={this.props.limit || defaultLimit}
+      />
+    );  }}
+///presentational component : TextField :  stateless function
+//simpler, without compontnet!
+const defaultLimit = 100
+const TextField = (props) =>
+  <input
+    className="field field-light"
+    onChange={props.onChange}
+    limit={props.limit || defaultLimit}
+  />;
